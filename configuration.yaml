@@ -1,0 +1,10 @@
+schedule-working-directory: /your/desired/path/schedule
+screen-working-directory: /your/desired/path/screen
+current:
+  year: 2024
+  month: 4
+screen-categories:
+- Total
+-
+schedule-categories:
+- 
