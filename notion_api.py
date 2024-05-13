@@ -1,14 +1,16 @@
 import requests
 import yaml
 
+KEYS_FILE = '/home/vladesire/bin/py/tm/keys.yaml'
+
 class NotionApi: 
     def __init__(self):
-        with open('keys.yaml', 'r') as file:
+        with open(KEYS_FILE, 'r') as file:
             keys = yaml.safe_load(file)
 
         token = keys['token']
 
-        self.page = keys['mount-page']
+        self.page = keys['port-page']
         self.database = keys['database']
         self.headers = {
             "Authorization": f"Bearer {token}",
@@ -51,9 +53,9 @@ class NotionApi:
                 {
                     "object": "block",
                     "type": "table",
-                    "table": generate_table(
+                    "table": self.generate_table(
                         width = len(table[0]),
-                        rows = [generate_table_row(row) for row in table], 
+                        rows = [self.generate_table_row(row) for row in table], 
                         has_column_header = True, 
                         has_row_header = True,
                     )

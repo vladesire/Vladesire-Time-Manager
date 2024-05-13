@@ -1,6 +1,9 @@
 from entries import load_configuration, rewrite_configuration, append_entry
 from screen import input_screen, present_screen, present_screen_annual
 from schedule import input_schedule, present_schedule, present_schedule_annual
+from screen_notion import send_last_screen_table
+from schedule_notion import send_last_schedule_table, get_entry_from_notion
+
 
 months = ['ZERO', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -12,6 +15,7 @@ year = config['current']['year']
 
 print(f"Vladesire Time Manager ~ {months[month]} {year}")
 print(f"[ screen / schedule / present / annual / prev / next / exit ]")
+print(f"[ query / send ]")
 
 while True:
 
@@ -24,6 +28,24 @@ while True:
     elif 'schedule' in command:
         entry = input_schedule(config['schedule-categories'])
         append_entry(entry, schedule_wd, month, year)
+
+    elif 'query' in command:
+        start = input(f"    start date: ")
+        end = input(f"    end date: ")
+
+        entry = get_entry_from_notion(config['schedule-categories'], start, end)
+
+        print(entry)
+        save = input(f'Save? [y/n]: ')
+
+        if 'y' in save:
+            append_entry(entry, schedule_wd, month, year)
+        else: 
+            print('Abort')
+
+    elif 'send' in command:
+        send_last_schedule_table(schedule_wd, month, year)
+        send_last_screen_table(screen_wd, month, year)
 
     elif 'present' in command:
         try: 

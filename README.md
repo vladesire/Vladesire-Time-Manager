@@ -20,13 +20,15 @@ python3 time_manager.py
 I suggest using a decorator script added to your PATH. 
 
 ### Configuration
-First, fill in desired abolute paths where to store time data. 
+Step I. Rename \*-sample.yaml files to \*.yaml. 
 
-Then, write current month to start from. 
+Step II. Fill in desired abolute paths where to store time data. Write current month to start from. 
 
-Choose a subset of apps you want to track time of. **Total must always be included**
+Step III. Choose a subset of apps you want to track time of. **Total must always be included**
 
-Enter your schedule tags and Other (scheduled but not tagged time) category. 
+Step IV. Enter your schedule tags and Other (scheduled but not tagged time) category.
+
+Step V. In entries.py specify an absolute path to configuration.yaml. In notion_api.py specify an absolute path to keys.yaml, if you intend to use Notion API integration. 
 
 ### Usage
 Use commands from the hint panel: *schedule* to enter schedule time, *screen* to enter phone screen time, *present* to present stats for current month, ...
