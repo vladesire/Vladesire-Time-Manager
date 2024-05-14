@@ -118,12 +118,12 @@ class NotionApi:
                     # print(f"{page['properties']['Name']['title'][0]['text']['content']} {page['properties']['Hours']['formula']['number']}", end="")
 
                     hours = page['properties']['Hours']['formula']['number']
-                    tags = page['properties']['Tags']['multi_select']
+                    category = page['properties']['Category']['select']
                     
-                    if len(tags) == 0:
+                    if category == None:
                         time['Other'] += hours
                     else: 
-                        time[tags[0]['name']] += hours
+                        time[category['name']] += hours
 
                 has_more = response['has_more']
 

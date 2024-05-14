@@ -1,14 +1,6 @@
 import yaml
 import glob
 
-CONFIG_FILE='/home/vladesire/bin/py/tm/configuration.yaml'
-
-def load_configuration():
-    with open(CONFIG_FILE, 'r') as file:
-        config = yaml.safe_load(file)
-
-    return config
-
 def total_entry(entries):
     total = {}
 
@@ -37,10 +29,6 @@ def file_name(root, month, year):
     else: 
         return f'{root}/{year}-0{month}.yaml'
 
-def rewrite_configuration(config): 
-    with open(CONFIG_FILE, 'w') as file:
-        yaml.dump(config, file, sort_keys=False)
-
 def append_entry(entry, wd, month, year):
     with open(file_name(wd, month, year), 'a+') as file:
         entries = yaml.safe_load(file) or []
@@ -53,6 +41,18 @@ def get_entries(wd, month, year):
         entries = yaml.safe_load(file)
 
     return entries
+
+def get_entries_subset(wd: str, year: str, month_subset: list[int]):
+    subset_list = []
+
+    files = [f'{wd}/{year}-{month}.yaml' for month in month_subset]
+
+    for file in files:
+        with open(file, 'r') as file:
+            entries = yaml.safe_load(file)
+            subset_list += entries
+
+    return subset_list
 
 def get_annual_entries(wd, year):
     annual_list = []
