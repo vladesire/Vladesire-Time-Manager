@@ -1,11 +1,13 @@
 import requests
 import yaml
-
-KEYS_FILE = '/home/vladesire/bin/py/tm/keys.yaml'
+from pathlib import Path
+from .tables import generate_table, generate_table_row
 
 class NotionApi: 
     def __init__(self):
-        with open(KEYS_FILE, 'r') as file:
+        path = Path(__file__).parents[3].joinpath('keys.yaml')
+
+        with open(path, 'r') as file:
             keys = yaml.safe_load(file)
 
         token = keys['token']
@@ -18,34 +20,6 @@ class NotionApi:
             "Content-Type": "application/json"
         }
 
-
-    def generate_table_row(self, cells):
-        return {
-            "type": "table_row",
-            "table_row": {
-                "cells": [
-                    [   
-                        {
-                            "type": "text",
-                            "text": {
-                                "content": cell
-                            }
-                        }
-                    ]               
-                    for cell in cells
-                ]
-            }
-        }
-
-
-    def generate_table(self, width, rows, has_column_header = False, has_row_header = False):
-        return {
-            "table_width": width, 
-            "has_column_header": has_column_header,
-            "has_row_header": has_row_header,
-            "children": rows
-        }   
-
     def send_table(self, table: list[list[str]]):
 
         json = {
@@ -53,9 +27,9 @@ class NotionApi:
                 {
                     "object": "block",
                     "type": "table",
-                    "table": self.generate_table(
+                    "table": generate_table(
                         width = len(table[0]),
-                        rows = [self.generate_table_row(row) for row in table], 
+                        rows = [generate_table_row(row) for row in table], 
                         has_column_header = True, 
                         has_row_header = True,
                     )

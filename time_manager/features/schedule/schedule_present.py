@@ -1,25 +1,10 @@
-from entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
+from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
 
-def input_schedule(categories): 
-    entry = {}
-    sum = 0.0
-
-    for category in categories: 
-        time = input(f"    {category}: ")
-        
-        try: 
-            time = float(time)
-        except:
-            time = 0
-
-        sum += time    
-        entry[category] = time
-
-    entry['Sleep'] = 168 - sum
-
-    return entry
-
-def present_schedule(wd, month, year):
+def monthly(
+    wd: str, 
+    month: int, 
+    year: int
+):
     entries = get_entries(wd, month, year)
     weeks = len(entries)
 

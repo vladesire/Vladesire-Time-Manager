@@ -1,5 +1,6 @@
 schedule-working-directory: /path/to/schedule
 screen-working-directory: /path/to/screen
+notion-integration-enabled: true
 current:
   year: 2024
   month: 5

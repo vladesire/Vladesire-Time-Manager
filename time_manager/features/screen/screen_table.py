@@ -1,8 +1,7 @@
-from entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
-from notion_api import NotionApi
+from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
 
 # Draft version
-def generate_weekly_screen_table(entry, prev):
+def populate_weekly_table(entry, prev):
     table = [["", "Weekly", "Daily", "Quotient", "Dynamics"]]
 
     total = entry['Total']
@@ -31,7 +30,11 @@ def generate_weekly_screen_table(entry, prev):
 
     return table
 
-def send_last_screen_table(wd, month, year):
+def for_last_entry(
+    wd: str, 
+    year: int, 
+    month: int
+) -> list[list[str]]:
     entries = get_entries(wd, month, year)
     weeks = len(entries)
 
@@ -47,10 +50,4 @@ def send_last_screen_table(wd, month, year):
 
     current = entries[-1]['Entry']
 
-    table = generate_weekly_screen_table(current, prev)
-
-    api = NotionApi()
-
-    r = api.send_table(table)
-
-    print(f'Sending screen table: {r.status_code}')
+    return populate_weekly_table(current, prev)

@@ -1,13 +1,6 @@
-from entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
-from notion_api import NotionApi
+from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
 
-def get_entry_from_notion(categories, start_date, end_date):
-    api = NotionApi()          
-    entry = api.query_schedule_database(categories, start_date, end_date)
-
-    return entry
-
-def generate_weekly_schedule_table(entry, prev):
+def populate_weekly_table(entry, prev):
     table = [["", "Weekly", "Daily", "Quotient", "Dynamics"]]
 
     for category in entry: 
@@ -24,7 +17,7 @@ def generate_weekly_schedule_table(entry, prev):
     
     return table
 
-def send_last_schedule_table(wd, month, year):
+def for_last_entry(wd, year, month):
     entries = get_entries(wd, month, year)
     weeks = len(entries)
 
@@ -40,10 +33,4 @@ def send_last_schedule_table(wd, month, year):
 
     current = entries[-1]['Entry']
 
-    table = generate_weekly_schedule_table(current, prev)
-
-    api = NotionApi()
-
-    r = api.send_table(table)
-
-    print(f'Sending schedule table: {r.status_code}')
+    return populate_weekly_table(current, prev)

@@ -15,7 +15,7 @@ It is important to schedule the day fully, so sleep time can be computed accurat
 ### Installation
 Just clone these files and run 
 ```
-python3 time_manager.py
+python3 time_manager/main.py
 ```
 I suggest using a decorator script added to your PATH. 
 

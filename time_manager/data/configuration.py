@@ -1,14 +1,14 @@
 import yaml
-
-CONFIG_FILE='/home/vladesire/bin/py/tm/configuration.yaml'
+from pathlib import Path
 
 months = ['ZERO', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 class ConfigurationManager:
     def __init__(self):
-        with open(CONFIG_FILE, 'r') as file:
-            config = yaml.safe_load(file)
+        self.path = Path(__file__).parents[2].joinpath('configuration.yaml')
 
+        with open(self.path, 'r') as file:
+            config = yaml.safe_load(file)
 
         self.configuration = config
         self.screen_wd = config['screen-working-directory']
@@ -17,9 +17,10 @@ class ConfigurationManager:
         self.year = config['current']['year']
         self.screen_categories = config['screen-categories']
         self.schedule_categories = config['schedule-categories']
+        self.has_notion = config['notion-integration-enabled']
 
     def rewrite_configuration(self):
-        with open(CONFIG_FILE, 'w') as file:
+        with open(self.path, 'w') as file:
             yaml.dump(self.configuration, file, sort_keys=False)
         
     def get_date(self): 
