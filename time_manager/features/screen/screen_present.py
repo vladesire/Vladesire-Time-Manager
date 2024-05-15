@@ -1,4 +1,5 @@
-from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
+from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries, get_entries_subset
+from features.common import present_monthly, apply_partly, apply_annual
 
 def get_total_string(minutes, weeks):
     if weeks == 1:
@@ -10,12 +11,9 @@ def get_category_string(minutes, weeks, total, dynamics = '~'):
     return f"{get_total_string(minutes, weeks)} / {round(minutes/total*100, 1)}%"
 
 
-def present_single_screen(entry, weeks = 1, monthly = 0, prev = {}):
+def present_single_screen(entry, weeks = 1, prev = {}):
 
     total = entry['Total']
-
-    if monthly != 0:
-        print(f'    Weekly quotient: {round(total/monthly*100, 1)}%')
     
     if 'Total' in prev and prev['Total'] > 0.00000001:
         percentage = round((total / weeks / prev['Total'] - 1) * 100, 1)
@@ -39,66 +37,19 @@ def present_single_screen(entry, weeks = 1, monthly = 0, prev = {}):
 
         print(f'    {category}: { get_category_string(minutes, weeks, total) } / {dynamics}')
 
-def monthly(
-    wd: str, 
-    month: int, 
-    year: int
-):
-    entries = get_entries(wd, month, year)
-    weeks = len(entries)
-
-    if weeks == 0:
-        print('Empty month')
-        return
-
-    # Count it first, as present_single_screen will remove 'Total' keys, and I don't want to pass a copy. 
-    total = total_entry(entries)
-    
+def monthly(wd: str, month: int, year: int):
     print(f'The Screen Time Stats for {year}-{month}')
-
     print('Format weekly: total / daily / quotient')
     print('Format monthly: total / weekly / daily / quotient')
-    
-    # Weekly
-    for week, entry in enumerate(entries, start=1): 
-        print('----------')
-        print(f'Week {week}')
+    present_monthly(wd, month, year, present_single_screen, ['Total'])
 
-        if week > 1: 
-            prev = entries[week - 2]['Entry']
-        else:
-            # Try to load the last entry from previous month
-            # If it's January -- consider the first week as a new beginning
-            try: 
-                prev = get_entries(wd, month - 1, year)[-1]['Entry']
-            except:
-                prev = {}
+def partly(wd: str, year: int, part: int):
+    print(f'  Screen Time Stats for {year} part {part}')
+    print('  Format: total / weekly / daily / quotient / dynamics\n')
+    apply_partly(wd, year, part, present_single_screen)
 
-        present_single_screen(entry['Entry'].copy(), monthly = total['Total'], prev = prev)
-
-    # Monthly
-    print('----------')
-    print('Total')
-    print(f'    ({weeks} weeks)')
-
-    try: 
-        prev = weekly_average_entry(get_entries(wd, month - 1, year))
-    except:
-        prev = {}
-
-    present_single_screen(total, weeks = weeks, prev = prev)
 
 def annual(wd, year):
-    entries = get_annual_entries(wd, year)
-
-    weeks = len(entries)
-    total = total_entry(entries)
-
-    try: 
-        prev = weekly_average_entry(get_annual_entries(wd, year-1))
-    except:
-        prev = {}
-
-    print(f'    Annual Screen Time Stats for {year}, {weeks} weeks')
-    print('    Format: total / weekly / daily / quotient / dynamics\n')
-    present_single_screen(total, weeks = weeks, prev = prev)
+    print(f'  Annual Screen Time Stats for {year}')
+    print('  Format: total / weekly / daily / quotient / dynamics\n')
+    apply_annual(wd, year, present_single_screen)

@@ -56,19 +56,30 @@ def send_last_week_tables(
     year: int, 
     month: int
 ): 
+    query = input('  w/p/a:')
+
     api = NotionApi()
 
-    r = api.send_table(
-        table = screen_table.for_last_entry(screen_wd, year, month)
-    )
+    if 'p' in query:
+        
+        r = api.send_table(
+            table = schedule_table.for_part(schedule_wd, year, 1)
+        )
 
-    print(f'  Sending schedule table: {r.status_code}')
+        print(f'  Sending Part I schedule table: {r.status_code}')
 
-    r = api.send_table(
-        table = schedule_table.for_last_entry(schedule_wd, year, month)
-    )
 
-    print(f'  Sending schedule table: {r.status_code}')
+    # r = api.send_table(
+    #     table = screen_table.for_last_entry(screen_wd, year, month)
+    # )
+
+    # print(f'  Sending schedule table: {r.status_code}')
+
+    # r = api.send_table(
+    #     table = schedule_table.for_last_entry(schedule_wd, year, month)
+    # )
+
+    # print(f'  Sending schedule table: {r.status_code}')
 
 
 def present_month(
@@ -88,6 +99,19 @@ def present_month(
         schedule_present.monthly(schedule_wd, month, year)
     except:
         print('No schedule time data for this month. Use command \'schedule\' first')
+
+
+def present_part(
+    screen_wd: str, 
+    schedule_wd: str, 
+    year: int
+): 
+    part = input('  [1/2/3]: ')
+
+    if part == '1' or part == '2' or part == '3':
+
+        screen_present.partly(screen_wd, year, int(part))
+        schedule_present.partly(schedule_wd, year, int(part))
 
 
 def present_year(

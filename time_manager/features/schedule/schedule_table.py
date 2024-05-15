@@ -1,20 +1,33 @@
 from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
+from features.common import apply_partly
 
-def populate_weekly_table(entry, prev):
-    table = [["", "Weekly", "Daily", "Quotient", "Dynamics"]]
+# I need to 
+
+def get_category_list(time, weeks, dynamics = '~') -> list[str]:
+    # Adding 0.001 solved wrong rounding problem
+    if weeks == 1: 
+        return [f'{round(time + 0.001, 1)}', f'{round(time / 7, 1)}', f'{round(time / 168 * 100, 1)}', f'{dynamics}']
+    else:
+        return [f'{round(time + 0.001, 1)}', f'{round(time / weeks, 1)}', f'{round(time / weeks / 7, 1)}', f'{round(time / weeks / 168 * 100, 1)}', f'{dynamics}']
+
+def populate_table(entry, weeks = 1, prev = {}):
+    table = []
 
     for category in entry: 
         if category in prev and prev[category] > 0.00000001:
             # prev is weekly value if weeks == 1, otherwise it is weekly average
-            percentage = round((entry[category] / prev[category] - 1) * 100, 1)
+            percentage = round((entry[category] / weeks / prev[category] - 1) * 100, 1)
             dynamics = f"{'+' if percentage >= 0.0 else ''}{percentage}%"
         else:
             dynamics = "~"
 
-        time = entry[category]
-        # Adding 0.001 solved wrong rounding problem
-        table.append([category, f'{round(time + 0.001, 1)}', f'{round(time / 7, 1)}', f'{round(time / 168 * 100, 1)}%', f'{dynamics}'])
+        table.append([category] + get_category_list(entry[category], weeks, dynamics))
     
+    return table
+
+def for_part(wd, year, part):
+    table = [['', f'Part {part}', 'Weekly', 'Daily', 'Quotient', 'Dynamics']]
+    table += apply_partly(wd, year, part, populate_table)
     return table
 
 def for_last_entry(wd, year, month):
@@ -33,4 +46,4 @@ def for_last_entry(wd, year, month):
 
     current = entries[-1]['Entry']
 
-    return populate_weekly_table(current, prev)
+    return populate_table(current, 1, prev)

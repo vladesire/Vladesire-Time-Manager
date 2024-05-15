@@ -48,10 +48,13 @@ def get_entries_subset(wd: str, year: str, month_subset: list[int]):
     files = [file_name(wd, year, month) for month in month_subset]
 
     for file in files:
-        with open(file, 'r') as file:
-            entries = yaml.safe_load(file)
-            subset_list += entries
-
+        try: 
+            with open(file, 'r') as file:
+                entries = yaml.safe_load(file)
+                subset_list += entries
+        except: 
+            pass
+            
     return subset_list
 
 def get_annual_entries(wd, year):
