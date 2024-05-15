@@ -1,18 +1,27 @@
 from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
+from features.common import apply_partly
 
-# Draft version
-def populate_weekly_table(entry, prev):
-    table = [["", "Weekly", "Daily", "Quotient", "Dynamics"]]
+def get_total_list(minutes, weeks):
+    if weeks == 1:
+        return [f'{round(minutes/60, 1)}', f'{round(minutes/60/7, 1)}']
+    else:
+        return [f'{round(minutes/60, 1)}', f'{round(minutes/60/weeks, 1)}', f'{round(minutes/60/weeks/7, 1)}']
+
+def get_category_list(minutes, weeks, total, dynamics = '~'):
+    return get_total_list(minutes, weeks) + [f'{round(minutes/total*100, 1)}%', dynamics]
+
+def populate_table(entry, weeks = 1, prev = {}):
+    table = []
 
     total = entry['Total']
 
     if 'Total' in prev and prev['Total'] > 0.00000001:
-        percentage = round((total / prev['Total'] - 1) * 100, 1)
+        percentage = round((total / weeks / prev['Total'] - 1) * 100, 1)
         dynamics = f"{'+' if percentage >= 0.0 else ''}{percentage}%"
     else:
         dynamics = '~'
 
-    table.append(['Total', f'{round(total/60, 1)}', f'{round(total/60/7, 1)}', '', f'{dynamics}'])
+    table.append(['Total'] + get_total_list(total, weeks) + ['', f'{dynamics}'])
 
     del entry['Total']
 
@@ -21,13 +30,19 @@ def populate_weekly_table(entry, prev):
 
         if category in prev and prev[category] > 0.00000001:
             # prev is weekly value if weeks == 1, otherwise it is weekly average
-            percentage = round((minutes / prev[category] - 1) * 100, 1)
+            percentage = round((minutes / weeks / prev[category] - 1) * 100, 1)
             dynamics = f"{'+' if percentage >= 0.0 else ''}{percentage}%"
         else:
             dynamics = "~"
 
-        table.append([category, f'{round(minutes/60, 1)}', f'{round(minutes/60/7, 1)}', f'{round(minutes/total*100, 1)}%', f'{dynamics}'])
+        table.append([category] + get_category_list(minutes, weeks, total, dynamics))
+        # table.append([category, f'{round(minutes/60, 1)}', f'{round(minutes/60/7, 1)}', f'{round(minutes/total*100, 1)}%', f'{dynamics}'])
 
+    return table
+
+def for_part(wd, year, part):
+    table = [['', f'Part {part}', 'Weekly', 'Daily', 'Quotient', 'Dynamics']]
+    table += apply_partly(wd, year, part, populate_table)
     return table
 
 def for_last_entry(

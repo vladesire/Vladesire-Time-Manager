@@ -60,26 +60,38 @@ def send_last_week_tables(
 
     api = NotionApi()
 
-    if 'p' in query:
-        
+    if 'p' in query:        
+
+        part = input('  1/2/3: ')
+
+        if part == '1' or part == '2' or part == '3':
+            part = int(part)
+
+            r = api.send_table(
+                table = schedule_table.for_part(schedule_wd, year, part)
+            )
+
+            print(f'  Sending Part {part} schedule table: {r.status_code}')
+
+            r = api.send_table(
+                table = screen_table.for_part(screen_wd, year, part)
+            )
+
+            print(f'  Sending Part {part} screen table: {r.status_code}')
+
+
+    elif 'w' in query:
         r = api.send_table(
-            table = schedule_table.for_part(schedule_wd, year, 1)
+            table = screen_table.for_last_entry(screen_wd, year, month)
         )
 
-        print(f'  Sending Part I schedule table: {r.status_code}')
+        print(f'  Sending last week schedule table: {r.status_code}')
 
+        r = api.send_table(
+            table = schedule_table.for_last_entry(schedule_wd, year, month)
+        )
 
-    # r = api.send_table(
-    #     table = screen_table.for_last_entry(screen_wd, year, month)
-    # )
-
-    # print(f'  Sending schedule table: {r.status_code}')
-
-    # r = api.send_table(
-    #     table = schedule_table.for_last_entry(schedule_wd, year, month)
-    # )
-
-    # print(f'  Sending schedule table: {r.status_code}')
+        print(f'  Sending last week schedule table: {r.status_code}')
 
 
 def present_month(

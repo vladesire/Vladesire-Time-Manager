@@ -1,14 +1,12 @@
 from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
 from features.common import apply_partly
 
-# I need to 
-
 def get_category_list(time, weeks, dynamics = '~') -> list[str]:
     # Adding 0.001 solved wrong rounding problem
     if weeks == 1: 
         return [f'{round(time + 0.001, 1)}', f'{round(time / 7, 1)}', f'{round(time / 168 * 100, 1)}', f'{dynamics}']
     else:
-        return [f'{round(time + 0.001, 1)}', f'{round(time / weeks, 1)}', f'{round(time / weeks / 7, 1)}', f'{round(time / weeks / 168 * 100, 1)}', f'{dynamics}']
+        return [f'{round(time + 0.001, 1)}', f'{round(time / weeks, 1)}', f'{round(time / weeks / 7, 1)}', f'{round(time / weeks / 168 * 100, 1)}%', f'{dynamics}']
 
 def populate_table(entry, weeks = 1, prev = {}):
     table = []
