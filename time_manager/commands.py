@@ -1,5 +1,6 @@
 from data.entries import append_entry
 from data.notion.api import NotionApi
+from data.configuration import months
 from features.schedule import schedule_input, schedule_present, schedule_table
 from features.screen import screen_input, screen_present, screen_table
 
@@ -28,14 +29,21 @@ def enter_schedule_manually(
     print('    Saved!')
 
 
-def pull_schedule_from_notion(
+def pull_dispatcher(
+    command: str,
     schedule_categories: list[str], 
     schedule_wd: str, 
     year: int, 
     month: int
 ): 
-    start = input(f'  Start date: ')
-    end = input(f'  End date:   ')
+    if command == 'pull':
+        start = input(f'  Start date: ')
+        end = input(f'  End date:   ')
+    elif command == 'pull last':
+        # TODO: HERE I MUST AUTOMATICALLY DETERMINE BOUNDARIES OF THE PREVIOUS WEEK
+        print('IN DEVELOPMENT')
+        start = input(f'  Start date: ')
+        end = input(f'  End date:   ')
 
     entry = schedule_input.pull_from_notion(schedule_categories, start, end)
 
@@ -50,48 +58,83 @@ def pull_schedule_from_notion(
 
 
 
-def send_last_week_tables(
+def push_dispatcher(
+    command: str, 
     screen_wd: str, 
     schedule_wd: str, 
     year: int, 
     month: int
 ): 
-    query = input('  w/p/a:')
-
+    
     api = NotionApi()
+    
+    if command == 'push' or command[:9] == 'push week':
 
-    if 'p' in query:        
+        if command == 'push' or len(command) == 9:
+            # Assume previous week
+            week = -1
+        else:
+            # Get week from command
+            week = int(command[10:])
 
-        part = input('  1/2/3: ')
+        r = api.send_table(
+            table = screen_table.for_week(screen_wd, year, month, week)
+        )
 
-        if part == '1' or part == '2' or part == '3':
-            part = int(part)
+        print(f'  Pushing screen table for {months[month]} {year} Week {week}: {r.status_code}')
+
+        r = api.send_table(
+            table = schedule_table.for_week(schedule_wd, year, month, week)
+        )
+
+        print(f'  Pushing schedule table for {months[month]} {year} Week {week}: {r.status_code}')
+
+    elif command[:10] == 'push month':
+        print('IN DEVELOPMENT')
+
+    elif command[:9] == 'push part':
+
+        # TODO: DO SOME VALIDATION OF COMMAND
+
+        if len(command) == 9:
+            # TODO: DETERMINE THE LAST PART ON MY OWN
+            part = 1
+        else:
+            part = int(command[10:])
+
+        if part == 1 or part == 2 or part == 3:
+            
+            r = api.send_table(
+                table = screen_table.for_part(screen_wd, year, part)
+            )
+
+            print(f'  Pushing screen table for {year} part {part}: {r.status_code}')
 
             r = api.send_table(
                 table = schedule_table.for_part(schedule_wd, year, part)
             )
 
-            print(f'  Sending Part {part} schedule table: {r.status_code}')
+            print(f'  Pushing schedule table for {year} part {part}: {r.status_code}')
+        else:
+            print('There are only three part in the year')
 
+    elif command[:11] == 'push annual':
+
+        # TODO: IF YEAR IS SPECIFIED -- CHECK IF IT IS VALID
+
+        if len(command) == 11:
+    
             r = api.send_table(
-                table = screen_table.for_part(screen_wd, year, part)
+                table = screen_table.for_annual(screen_wd, year)
             )
 
-            print(f'  Sending Part {part} screen table: {r.status_code}')
+            print(f'  Pushing screen table for {year}: {r.status_code}')
 
+            r = api.send_table(
+                table = schedule_table.for_annual(schedule_wd, year)
+            )
 
-    elif 'w' in query:
-        r = api.send_table(
-            table = screen_table.for_last_entry(screen_wd, year, month)
-        )
-
-        print(f'  Sending last week schedule table: {r.status_code}')
-
-        r = api.send_table(
-            table = schedule_table.for_last_entry(schedule_wd, year, month)
-        )
-
-        print(f'  Sending last week schedule table: {r.status_code}')
+            print(f'  Pushing schedule table for {year}: {r.status_code}')
 
 
 def present_month(

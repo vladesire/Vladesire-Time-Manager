@@ -1,5 +1,5 @@
 from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries, get_entries_subset
-from features.common import present_monthly, apply_partly, apply_annual
+from features.common import present_monthly, apply_partly, apply_annual, get_dynamics
 
 def get_total_string(minutes, weeks):
     if weeks == 1:
@@ -15,9 +15,8 @@ def present_single_screen(entry, weeks = 1, prev = {}):
 
     total = entry['Total']
     
-    if 'Total' in prev and prev['Total'] > 0.00000001:
-        percentage = round((total / weeks / prev['Total'] - 1) * 100, 1)
-        dynamics = f"{'+' if percentage >= 0.0 else ''}{percentage}%"
+    if 'Total' in prev and prev['Total'] > 0:
+        dynamics = get_dynamics(total, weeks, prev['Total'])
     else:
         dynamics = '~'
 
@@ -28,10 +27,8 @@ def present_single_screen(entry, weeks = 1, prev = {}):
     for category in entry:
         minutes = entry[category]
 
-        if category in prev and prev[category] > 0.00000001:
-            # prev is weekly value if weeks == 1, otherwise it is weekly average
-            percentage = round((minutes / weeks / prev[category] - 1) * 100, 1)
-            dynamics = f"{'+' if percentage >= 0.0 else ''}{percentage}%"
+        if category in prev and prev[category] > 0:
+            dynamics = get_dynamics(minutes, weeks, prev[category])
         else:
             dynamics = "~"
 

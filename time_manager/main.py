@@ -1,5 +1,13 @@
 import commands
+import signal
 from data.configuration import ConfigurationManager
+
+def exit_handler(signum, frame):
+    print("")
+    print("Have a nice day!")
+    exit(1)
+
+signal.signal(signal.SIGINT, exit_handler)
 
 cfg = ConfigurationManager()
 
@@ -12,6 +20,10 @@ else:
 
 print('[ screen / schedule / present / help / ... / exit ]')
 
+# TODO: DO SOME VALIDATION OF COMMANDS
+# TODO: DO SOME VALIDATION OF COMMANDS
+# TODO: DO SOME VALIDATION OF COMMANDS
+
 while True:
     command = input("> ")
 
@@ -22,10 +34,10 @@ while True:
         commands.enter_schedule_manually(cfg.schedule_categories, cfg.schedule_wd, cfg.year, cfg.month)
 
     elif 'pull' in command and cfg.has_notion:
-        commands.pull_schedule_from_notion(cfg.schedule_categories, cfg.schedule_wd, cfg.year, cfg.month)
+        commands.pull_dispatcher(command, cfg.schedule_categories, cfg.schedule_wd, cfg.year, cfg.month)
 
-    elif 'send' in command and cfg.has_notion:
-        commands.send_last_week_tables(cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
+    elif 'push' in command and cfg.has_notion:
+        commands.push_dispatcher(command, cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
 
     elif 'present' in command:
         commands.present_month(cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
@@ -50,8 +62,13 @@ while True:
         print('  Select month: prev / next') 
     
         if cfg.has_notion:
-            print('  Get schedule data from Notion: pull')
-            print('  Send tables to Notion page: send')
+            print('  Get schedule data from Notion: pull [last]')
+            print('    Pull without arguments will prompt date range')
+            print('    \'pull last\' will automatically determine date range of the previous week')
+
+            print('  Push tables to Notion page: push [week/month/part/annual] [number]')
+            print('    When period is not specified, week is assumed')
+            print('    When number is not specified, the last one is assumed')
 
     elif 'exit' in command:
         break

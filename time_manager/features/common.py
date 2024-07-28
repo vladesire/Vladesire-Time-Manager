@@ -82,3 +82,8 @@ def apply_annual(wd: str, year: int, apply):
     print(f'    {weeks} weeks')    
 
     return apply(total, weeks = weeks, prev = prev)
+
+
+def get_dynamics(current: int, weeks: int, prev: int) -> str:
+    percentage = round((current / weeks / prev - 1) * 100, 1)
+    return f"{'+' if percentage > 0 else ''}{percentage}%"

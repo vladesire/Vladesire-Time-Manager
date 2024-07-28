@@ -1,5 +1,5 @@
 from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries
-from features.common import apply_partly
+from features.common import apply_partly, apply_annual
 
 def get_total_list(minutes, weeks):
     if weeks == 1:
@@ -45,16 +45,28 @@ def for_part(wd, year, part):
     table += apply_partly(wd, year, part, populate_table)
     return table
 
-def for_last_entry(
+def for_annual(wd, year):
+    table = [['', f'{year}', 'Weekly', 'Daily', 'Quotient', 'Dynamics']]
+    table += apply_annual(wd, year, populate_table)
+    return table
+
+
+def for_week(
     wd: str, 
     year: int, 
-    month: int
+    month: int,
+    week: int
 ) -> list[list[str]]:
     entries = get_entries(wd, month, year)
     weeks = len(entries)
 
-    if weeks > 1: 
+    if week == -1 and weeks > 1: 
+        # The last week is assumed
         prev = entries[-2]['Entry']
+    elif week > 1:
+        # Convert it to index
+        week -= 1
+        prev = entries[week - 1]['Entry']
     else:
         # Try to load the last entry from previous month
         # If it's January -- consider the first week as a new beginning
@@ -63,6 +75,9 @@ def for_last_entry(
         except:
             prev = {}
 
-    current = entries[-1]['Entry']
+    current = entries[week]['Entry']
 
-    return populate_weekly_table(current, prev)
+    table = [['', 'Weekly', 'Daily', 'Quotient', 'Dynamics']]
+    table += populate_table(current, 1, prev)
+
+    return table
