@@ -18,7 +18,7 @@ if cfg.has_notion:
 else:
     print('')
 
-print('[ screen / schedule / present / help / ... / exit ]')
+print('[ screen / pull / push / present / help / ... / exit ]')
 
 # TODO: DO SOME VALIDATION OF COMMANDS
 # TODO: DO SOME VALIDATION OF COMMANDS
@@ -40,13 +40,7 @@ while True:
         commands.push_dispatcher(command, cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
 
     elif 'present' in command:
-        commands.present_month(cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
-
-    elif 'part' in command: 
-        commands.present_part(cfg.screen_wd, cfg.schedule_wd, cfg.year)
-
-    elif 'annual' in command:
-        commands.present_year(cfg.screen_wd, cfg.schedule_wd, cfg.year)
+        commands.present_dispatcher(command, cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
 
     elif 'next' in command: 
         cfg.next_month()
@@ -58,17 +52,23 @@ while True:
 
     elif 'help' in command:
         print('  Enter manually: screen / schedule') 
-        print('  Present data: present / part / annual')
         print('  Select month: prev / next') 
     
+        print('  Present data: present [month / part / year] [number]')
+        print('    When period is not specified, month (week wise) is assumed')
+        print('    When number is not specified, the last one is assumed')
+
         if cfg.has_notion:
             print('  Get schedule data from Notion: pull [last]')
             print('    Pull without arguments will prompt date range')
             print('    \'pull last\' will automatically determine date range of the previous week')
 
-            print('  Push tables to Notion page: push [week/month/part/annual] [number]')
+            print('  Push tables to Notion page: push [week/month/part/year] [number]')
             print('    When period is not specified, week is assumed')
             print('    When number is not specified, the last one is assumed')
 
     elif 'exit' in command:
         break
+
+    else:
+        print('Unknown command')

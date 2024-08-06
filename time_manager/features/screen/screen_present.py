@@ -1,5 +1,4 @@
-from data.entries import total_entry, weekly_average_entry, get_entries, get_annual_entries, get_entries_subset
-from features.common import present_monthly, apply_partly, apply_annual, get_dynamics
+from features.common import present_week_wise, apply_partly, apply_annual, get_dynamics
 
 def get_total_string(minutes, weeks):
     if weeks == 1:
@@ -10,9 +9,7 @@ def get_total_string(minutes, weeks):
 def get_category_string(minutes, weeks, total, dynamics = '~'):
     return f"{get_total_string(minutes, weeks)} / {round(minutes/total*100, 1)}%"
 
-
-def present_single_screen(entry, weeks = 1, prev = {}):
-
+def present(entry, weeks = 1, prev = {}):
     total = entry['Total']
     
     if 'Total' in prev and prev['Total'] > 0:
@@ -34,19 +31,18 @@ def present_single_screen(entry, weeks = 1, prev = {}):
 
         print(f'    {category}: { get_category_string(minutes, weeks, total) } / {dynamics}')
 
-def monthly(wd: str, month: int, year: int):
+def week_wise(wd: str, year: int, month: int):
     print(f'The Screen Time Stats for {year}-{month}')
     print('Format weekly: total / daily / quotient')
     print('Format monthly: total / weekly / daily / quotient')
-    present_monthly(wd, month, year, present_single_screen, ['Total'])
+    present_week_wise(present, wd, year, month, ['Total'])
 
 def partly(wd: str, year: int, part: int):
     print(f'  Screen Time Stats for {year} part {part}')
     print('  Format: total / weekly / daily / quotient / dynamics\n')
-    apply_partly(wd, year, part, present_single_screen)
-
+    apply_partly(present, wd, year, part)
 
 def annual(wd, year):
     print(f'  Annual Screen Time Stats for {year}')
     print('  Format: total / weekly / daily / quotient / dynamics\n')
-    apply_annual(wd, year, present_single_screen)
+    apply_annual(present, wd, year)

@@ -90,7 +90,23 @@ def push_dispatcher(
         print(f'  Pushing schedule table for {months[month]} {year} Week {week}: {r.status_code}')
 
     elif command[:10] == 'push month':
-        print('IN DEVELOPMENT')
+
+        if command != 'push month':
+            month = int(command[11:])
+
+        # Otherwise, current week is assumed
+
+        r = api.send_table(
+            table = screen_table.for_month(screen_wd, year, month)
+        )
+
+        print(f'  Pushing screen table for {months[month]} {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = schedule_table.for_month(schedule_wd, year, month)
+        )
+
+        print(f'  Pushing schedule table for {months[month]} {year}: {r.status_code}')
 
     elif command[:9] == 'push part':
 
@@ -118,69 +134,79 @@ def push_dispatcher(
         else:
             print('There are only three part in the year')
 
-    elif command[:11] == 'push annual':
+    elif command[:9] == 'push year':
 
         # TODO: IF YEAR IS SPECIFIED -- CHECK IF IT IS VALID
 
-        if len(command) == 11:
+        if len(command) == 9:
     
             r = api.send_table(
-                table = screen_table.for_annual(screen_wd, year)
+                table = screen_table.for_year(screen_wd, year)
             )
 
             print(f'  Pushing screen table for {year}: {r.status_code}')
 
             r = api.send_table(
-                table = schedule_table.for_annual(schedule_wd, year)
+                table = schedule_table.for_year(schedule_wd, year)
             )
 
             print(f'  Pushing schedule table for {year}: {r.status_code}')
 
 
-def present_month(
+def present_dispatcher(
+    command: str,
     screen_wd: str, 
     schedule_wd: str, 
     year: int, 
     month: int
-): 
-    try: 
-        screen_present.monthly(screen_wd, month, year)
-    except:
-        print('No screen time data for this month. Use command \'screen\' first')
+):
+    if command == 'present' or command[0:13] == 'present month':
+        if len(command) > 13:
+            month = int(command[14:])
 
-    print('\n    --------------------\n')
-    
-    try: 
-        schedule_present.monthly(schedule_wd, month, year)
-    except:
-        print('No schedule time data for this month. Use command \'schedule\' first')
+        try: 
+            screen_present.week_wise(screen_wd, year, month)
+        except:
+            print('No screen time data for this month. Use command \'screen\' first')
 
-
-def present_part(
-    screen_wd: str, 
-    schedule_wd: str, 
-    year: int
-): 
-    part = input('  [1/2/3]: ')
-
-    if part == '1' or part == '2' or part == '3':
-
-        screen_present.partly(screen_wd, year, int(part))
-        schedule_present.partly(schedule_wd, year, int(part))
-
-
-def present_year(
-    screen_wd: str, 
-    schedule_wd: str, 
-    year: int
-): 
-    try: 
-        screen_present.annual(screen_wd, year)
         print('\n    --------------------\n')
-    except:
-        print('No screen time data or data is corrupted.')
+        
+        try: 
+            schedule_present.week_wise(schedule_wd, year, month)
+        except:
+            print('No schedule time data for this month. Use command \'schedule\' first')
 
-    try: 
-        schedule_present.annual(schedule_wd, year)
-    except:
-        print('No schedule time data or data is corrupted.')
+    elif command[0:12] == 'present part':
+        if len(command) == 12:
+            # TODO: DETERMINE THE LAST PART ON MY OWN
+            part = 1
+        else: 
+            part = int(command[13:])
+    
+        try: 
+            screen_present.partly(screen_wd, year, part)
+        except:
+            print('No screen time data or data is corrupted.')
+
+        print('\n    --------------------\n')
+
+        try: 
+            schedule_present.partly(schedule_wd, year, part)
+        except:
+            print('No screen time data or data is corrupted.')
+
+    elif command[0:12] == 'present year':
+        if len(command) != 12:
+            year = int(command[13:])
+        
+        try: 
+            screen_present.annual(screen_wd, year)
+        except:
+            print('No screen time data or data is corrupted.')
+
+        print('\n    --------------------\n')
+
+        try: 
+            schedule_present.annual(schedule_wd, year)
+        except:
+            print('No schedule time data or data is corrupted.')
