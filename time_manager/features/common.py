@@ -102,3 +102,22 @@ def apply_annual(apply, wd: str, year: int):
         weeks = len(entries),
         prev = get_prev_annual_average(wd, year)
     )
+
+
+def monthly_distribution_table(wd, year, month):
+    entries = get_monthly_entries(wd, year, month)
+    total = total_entry(entries)
+    weeks = len(entries)
+
+    table = [[''] + [f'Week {week}' for week in range(1, weeks+1)]]
+
+    for category in total:
+        if total[category] > 0:
+            row = [category]
+
+            for entry in entries:
+                row.append(f'{round(entry[category]/total[category]*100, 1)}%')
+            
+            table += [row]
+
+    return table

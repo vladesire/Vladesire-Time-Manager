@@ -3,6 +3,7 @@ from data.notion.api import NotionApi
 from data.configuration import months
 from features.schedule import schedule_input, schedule_present, schedule_table
 from features.screen import screen_input, screen_present, screen_table
+from features.common import monthly_distribution_table
 
 
 def enter_screen_manually(
@@ -94,7 +95,7 @@ def push_dispatcher(
         if command != 'push month':
             month = int(command[11:])
 
-        # Otherwise, current week is assumed
+        # Otherwise, current month is assumed
 
         r = api.send_table(
             table = screen_table.for_month(screen_wd, year, month)
@@ -103,10 +104,24 @@ def push_dispatcher(
         print(f'  Pushing screen table for {months[month]} {year}: {r.status_code}')
 
         r = api.send_table(
+            table = monthly_distribution_table(screen_wd, year, month)
+        )
+
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+
+        r = api.send_table(
             table = schedule_table.for_month(schedule_wd, year, month)
         )
 
         print(f'  Pushing schedule table for {months[month]} {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = monthly_distribution_table(schedule_wd, year, month)
+        )
+
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
 
     elif command[:9] == 'push part':
 
