@@ -78,17 +78,22 @@ def push_dispatcher(
             # Get week from command
             week = int(command[10:])
 
+        if week == -1:
+            week_title = 'previous week'
+        else:
+            week_title = f'Week {week}'
+
         r = api.send_table(
             table = screen_table.for_week(screen_wd, year, month, week)
         )
 
-        print(f'  Pushing screen table for {months[month]} {year} Week {week}: {r.status_code}')
+        print(f'  Pushing screen table for {months[month]} {year} {week_title}: {r.status_code}')
 
         r = api.send_table(
             table = schedule_table.for_week(schedule_wd, year, month, week)
         )
 
-        print(f'  Pushing schedule table for {months[month]} {year} Week {week}: {r.status_code}')
+        print(f'  Pushing schedule table for {months[month]} {year} {week_title}: {r.status_code}')
 
     elif command[:10] == 'push month':
 

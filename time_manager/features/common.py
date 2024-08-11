@@ -66,7 +66,7 @@ def apply_weekly(apply, wd: str, year: int, month: int, week: int):
         # Try to load the last entry from previous month
         # If it's January -- consider the first week as a new beginning
         try: 
-            prev = get_monthly_entries(wd, month - 1, year)[-1]
+            prev = get_monthly_entries(wd, year, month - 1)[-1]
         except:
             prev = {}
 
