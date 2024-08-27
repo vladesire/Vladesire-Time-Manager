@@ -3,7 +3,7 @@ from data.notion.api import NotionApi
 from data.configuration import months
 from features.schedule import schedule_input, schedule_present, schedule_table
 from features.screen import screen_input, screen_present, screen_table
-from features.common import monthly_distribution_table
+from features.common import monthly_distribution_table, partly_distribution_table
 
 
 def enter_screen_manually(
@@ -143,14 +143,24 @@ def push_dispatcher(
             r = api.send_table(
                 table = screen_table.for_part(screen_wd, year, part)
             )
-
             print(f'  Pushing screen table for {year} part {part}: {r.status_code}')
+
+            r = api.send_table(
+                table = partly_distribution_table(screen_wd, year, part)
+            )
+            print(f'  Pushing corresponding distribution table: {r.status_code}')
 
             r = api.send_table(
                 table = schedule_table.for_part(schedule_wd, year, part)
             )
-
             print(f'  Pushing schedule table for {year} part {part}: {r.status_code}')
+
+            r = api.send_table(
+                table = partly_distribution_table(schedule_wd, year, part)
+            )
+            print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+
         else:
             print('There are only three part in the year')
 

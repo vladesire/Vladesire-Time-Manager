@@ -1,4 +1,5 @@
 from data.entries import total_entry, weekly_average_entry, get_monthly_entries, get_partly_entries, get_annual_entries, get_prev_monthly_average, get_prev_partly_average, get_prev_annual_average
+from data.configuration import months
 
 def get_dynamics(current: int, weeks: int, prev: int) -> str:
     percentage = round((current / weeks / prev - 1) * 100, 1)
@@ -116,7 +117,36 @@ def monthly_distribution_table(wd, year, month):
             row = [category]
 
             for entry in entries:
-                row.append(f'{round(entry[category]/total[category]*100, 1)}%')
+                if category in entry:
+                    row.append(f'{round(entry[category]/total[category]*100, 1)}%')
+                else:
+                    row.append('~')
+            
+            table += [row]
+
+    return table
+
+def partly_distribution_table(wd, year, part):
+    subsets = {1: [1, 2, 3, 4], 2: [5, 6, 7, 8], 3: [9, 10, 11, 12]}
+
+    all_entries = get_partly_entries(wd, year, part)
+    total = total_entry(all_entries)
+
+    monthly_entries = [get_monthly_entries(wd, year, month) for month in subsets[part]]
+    month_wise_entries = [total_entry(monthly_entry) for monthly_entry in monthly_entries]
+
+    offset = (part - 1) * 4
+    table = [[''] + [f'{months[month]}' for month in range(1 + offset, 5 + offset)]]
+
+    for category in total:
+        if total[category] > 0:
+            row = [category]
+
+            for entry in month_wise_entries:
+                if category in entry:
+                    row.append(f'{round(entry[category]/total[category]*100, 1)}%')
+                else:
+                    row.append('~')
             
             table += [row]
 
