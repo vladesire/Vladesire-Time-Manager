@@ -3,7 +3,7 @@ from data.notion.api import NotionApi
 from data.configuration import months
 from features.schedule import schedule_input, schedule_present, schedule_table
 from features.screen import screen_input, screen_present, screen_table
-from features.common import monthly_distribution_table, partly_distribution_table
+from features.common import monthly_distribution_table, partly_distribution_table, annual_distribution_table
 
 
 def enter_screen_manually(
@@ -168,19 +168,28 @@ def push_dispatcher(
 
         # TODO: IF YEAR IS SPECIFIED -- CHECK IF IT IS VALID
 
-        if len(command) == 9:
+        if len(command) != 9:
+            year = int(command[10:])
     
-            r = api.send_table(
-                table = screen_table.for_year(screen_wd, year)
-            )
+        r = api.send_table(
+            table = screen_table.for_year(screen_wd, year)
+        )
+        print(f'  Pushing screen table for {year}: {r.status_code}')
 
-            print(f'  Pushing screen table for {year}: {r.status_code}')
+        r = api.send_table(
+            table = annual_distribution_table(screen_wd, year)
+        )
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
 
-            r = api.send_table(
-                table = schedule_table.for_year(schedule_wd, year)
-            )
+        r = api.send_table(
+            table = schedule_table.for_year(schedule_wd, year)
+        )
+        print(f'  Pushing schedule table for {year}: {r.status_code}')
 
-            print(f'  Pushing schedule table for {year}: {r.status_code}')
+        r = api.send_table(
+            table = annual_distribution_table(schedule_wd, year)
+        )
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
 
 
 def present_dispatcher(

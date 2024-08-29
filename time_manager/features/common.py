@@ -151,3 +151,27 @@ def partly_distribution_table(wd, year, part):
             table += [row]
 
     return table
+
+
+def annual_distribution_table(wd, year):
+    all_entries = get_annual_entries(wd, year)
+    total = total_entry(all_entries)
+
+    partly_entries = [get_partly_entries(wd, year, part) for part in [1, 2, 3]]
+    part_wise_entries = [total_entry(partly_entry) for partly_entry in partly_entries]
+
+    table = [['', 'Part I', 'Part II', 'Part III']]
+
+    for category in total:
+        if total[category] > 0:
+            row = [category]
+
+            for entry in part_wise_entries:
+                if category in entry:
+                    row.append(f'{round(entry[category]/total[category]*100, 1)}%')
+                else:
+                    row.append('~')
+            
+            table += [row]
+
+    return table
