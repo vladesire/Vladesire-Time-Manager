@@ -19,3 +19,18 @@ def annual_table(populate_table, wd, year):
     table = [['', f'{year}', 'Weekly', 'Daily', 'Quotient', 'Dynamics']]
     table += apply_annual(populate_table, wd, year)
     return table
+
+def print_tables_markdown(table: list[list[str]]):
+    for index, row in enumerate(table): 
+        print('|', end='')
+        for item in row: 
+            print(item, end='|')
+
+        print('')
+
+        if index == 0:
+            print('|', end='')
+            for i in range(len(row)):
+                print('---|', end='')
+
+            print('')

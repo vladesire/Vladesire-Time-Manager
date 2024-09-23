@@ -4,7 +4,7 @@ from data.configuration import months
 from features.schedule import schedule_input, schedule_present, schedule_table
 from features.screen import screen_input, screen_present, screen_table
 from features.common import monthly_distribution_table, partly_distribution_table, annual_distribution_table
-
+from features.common_tables import print_tables_markdown
 
 def enter_screen_manually(
     screen_categories: list[str], 
@@ -17,7 +17,6 @@ def enter_screen_manually(
 
     print('    Saved!')
 
-
 def enter_schedule_manually(
     schedule_categories: list[str], 
     schedule_wd: str, 
@@ -28,7 +27,6 @@ def enter_schedule_manually(
     append_entry(entry, schedule_wd, month, year)
 
     print('    Saved!')
-
 
 def pull_dispatcher(
     command: str,
@@ -56,7 +54,6 @@ def pull_dispatcher(
         print('  Saved!')
     else: 
         print('  Abort.')
-
 
 
 def push_dispatcher(
@@ -94,6 +91,133 @@ def push_dispatcher(
         )
 
         print(f'  Pushing schedule table for {months[month]} {year} {week_title}: {r.status_code}')
+
+    elif command[:10] == 'push month':
+
+        if command != 'push month':
+            month = int(command[11:])
+
+        # Otherwise, current month is assumed
+
+        r = api.send_table(
+            table = screen_table.for_month(screen_wd, year, month)
+        )
+
+        print(f'  Pushing screen table for {months[month]} {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = monthly_distribution_table(screen_wd, year, month)
+        )
+
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+
+        r = api.send_table(
+            table = schedule_table.for_month(schedule_wd, year, month)
+        )
+
+        print(f'  Pushing schedule table for {months[month]} {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = monthly_distribution_table(schedule_wd, year, month)
+        )
+
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+
+    elif command[:9] == 'push part':
+
+        # TODO: DO SOME VALIDATION OF COMMAND
+
+        if len(command) == 9:
+            # TODO: DETERMINE THE LAST PART ON MY OWN
+            part = 1
+        else:
+            part = int(command[10:])
+
+        if part == 1 or part == 2 or part == 3:
+            
+            r = api.send_table(
+                table = screen_table.for_part(screen_wd, year, part)
+            )
+            print(f'  Pushing screen table for {year} part {part}: {r.status_code}')
+
+            r = api.send_table(
+                table = partly_distribution_table(screen_wd, year, part)
+            )
+            print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+            r = api.send_table(
+                table = schedule_table.for_part(schedule_wd, year, part)
+            )
+            print(f'  Pushing schedule table for {year} part {part}: {r.status_code}')
+
+            r = api.send_table(
+                table = partly_distribution_table(schedule_wd, year, part)
+            )
+            print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+
+        else:
+            print('There are only three part in the year')
+
+    elif command[:9] == 'push year':
+
+        # TODO: IF YEAR IS SPECIFIED -- CHECK IF IT IS VALID
+
+        if len(command) != 9:
+            year = int(command[10:])
+    
+        r = api.send_table(
+            table = screen_table.for_year(screen_wd, year)
+        )
+        print(f'  Pushing screen table for {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = annual_distribution_table(screen_wd, year)
+        )
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+        r = api.send_table(
+            table = schedule_table.for_year(schedule_wd, year)
+        )
+        print(f'  Pushing schedule table for {year}: {r.status_code}')
+
+        r = api.send_table(
+            table = annual_distribution_table(schedule_wd, year)
+        )
+        print(f'  Pushing corresponding distribution table: {r.status_code}')
+
+def export_dispatcher(
+    command: str,
+    screen_wd: str, 
+    schedule_wd: str, 
+    year: int, 
+    month: int    
+): 
+    if command == 'export' or command[:11] == 'export week':
+
+        if command == 'export' or len(command) == 11:
+            # Assume previous week
+            week = -1
+        else:
+            # Get week from command
+            week = int(command[12:])
+
+        if week == -1:
+            week_title = 'previous week'
+        else:
+            week_title = f'Week {week}'
+
+        print(f'Screen table for {months[month]} {year} {week_title}')
+        table = screen_table.for_week(screen_wd, year, month, week)
+        print_tables_markdown(table)
+
+
+        # TODO: WEEK OUT OF RANGE (NO SCHEDULES DATA)
+        # print(f'Schedule table for {months[month]} {year} {week_title}')
+        # table = schedule_table.for_week(schedule_wd, year, month, week)
+        # print_tables_markdown(table)
 
     elif command[:10] == 'push month':
 

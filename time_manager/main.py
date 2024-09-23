@@ -42,6 +42,9 @@ while True:
     elif 'present' in command:
         commands.present_dispatcher(command, cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
 
+    elif 'export' in command: 
+        commands.export_dispatcher(command, cfg.screen_wd, cfg.schedule_wd, cfg.year, cfg.month)
+
     elif 'next' in command: 
         cfg.next_month()
         print(f'Vladesire Time Manager is set for ~ {cfg.get_date()}')
