@@ -219,102 +219,72 @@ def export_dispatcher(
         # table = schedule_table.for_week(schedule_wd, year, month, week)
         # print_tables_markdown(table)
 
-    elif command[:10] == 'push month':
+    elif command[:12] == 'export month':
 
-        if command != 'push month':
-            month = int(command[11:])
+        if command != 'export month':
+            month = int(command[12:])
 
         # Otherwise, current month is assumed
 
-        r = api.send_table(
-            table = screen_table.for_month(screen_wd, year, month)
-        )
+        print(f'Screen table for {months[month]} {year}')
+        table = screen_table.for_month(screen_wd, year, month)
+        print_tables_markdown(table)
 
-        print(f'  Pushing screen table for {months[month]} {year}: {r.status_code}')
-
-        r = api.send_table(
-            table = monthly_distribution_table(screen_wd, year, month)
-        )
-
-        print(f'  Pushing corresponding distribution table: {r.status_code}')
+        print('Corresponding distribution table')        
+        table = monthly_distribution_table(screen_wd, year, month)
+        print_tables_markdown(table)
 
 
-        r = api.send_table(
-            table = schedule_table.for_month(schedule_wd, year, month)
-        )
+        # SCHEDULE TABLES
+        # table = schedule_table.for_month(schedule_wd, year, month)
+        # table = monthly_distribution_table(schedule_wd, year, month)
+    
 
-        print(f'  Pushing schedule table for {months[month]} {year}: {r.status_code}')
-
-        r = api.send_table(
-            table = monthly_distribution_table(schedule_wd, year, month)
-        )
-
-        print(f'  Pushing corresponding distribution table: {r.status_code}')
-
-
-    elif command[:9] == 'push part':
+    elif command[:11] == 'export part':
 
         # TODO: DO SOME VALIDATION OF COMMAND
 
-        if len(command) == 9:
+        if len(command) == 11:
             # TODO: DETERMINE THE LAST PART ON MY OWN
             part = 1
         else:
-            part = int(command[10:])
+            part = int(command[11:])
 
         if part == 1 or part == 2 or part == 3:
+            print(f'Screen table for {year} part {part}')
+            table = screen_table.for_part(screen_wd, year, part)
+            print_tables_markdown(table)
+
+            print(f'Corresponding distribution table')
+            table = partly_distribution_table(screen_wd, year, part)
+            print_tables_markdown(table)
             
-            r = api.send_table(
-                table = screen_table.for_part(screen_wd, year, part)
-            )
-            print(f'  Pushing screen table for {year} part {part}: {r.status_code}')
-
-            r = api.send_table(
-                table = partly_distribution_table(screen_wd, year, part)
-            )
-            print(f'  Pushing corresponding distribution table: {r.status_code}')
-
-            r = api.send_table(
-                table = schedule_table.for_part(schedule_wd, year, part)
-            )
-            print(f'  Pushing schedule table for {year} part {part}: {r.status_code}')
-
-            r = api.send_table(
-                table = partly_distribution_table(schedule_wd, year, part)
-            )
-            print(f'  Pushing corresponding distribution table: {r.status_code}')
-
+            # table = schedule_table.for_part(schedule_wd, year, part)
+            # table = partly_distribution_table(schedule_wd, year, part)
 
         else:
             print('There are only three part in the year')
 
-    elif command[:9] == 'push year':
+    elif command[:11] == 'export year':
 
         # TODO: IF YEAR IS SPECIFIED -- CHECK IF IT IS VALID
 
-        if len(command) != 9:
-            year = int(command[10:])
-    
-        r = api.send_table(
-            table = screen_table.for_year(screen_wd, year)
-        )
-        print(f'  Pushing screen table for {year}: {r.status_code}')
+        if len(command) != 11:
+            year = int(command[12:])
 
-        r = api.send_table(
-            table = annual_distribution_table(screen_wd, year)
-        )
-        print(f'  Pushing corresponding distribution table: {r.status_code}')
 
-        r = api.send_table(
-            table = schedule_table.for_year(schedule_wd, year)
-        )
-        print(f'  Pushing schedule table for {year}: {r.status_code}')
+        print(f'Screen time table for {year}')
+        table = screen_table.for_year(screen_wd, year)
+        print_tables_markdown(table)
 
-        r = api.send_table(
-            table = annual_distribution_table(schedule_wd, year)
-        )
-        print(f'  Pushing corresponding distribution table: {r.status_code}')
+        print(f'Corresponding distribution table')
+        table = annual_distribution_table(screen_wd, year)
+        print_tables_markdown(table)
+       
 
+        ### SCHEDULE TABLES
+        # table = schedule_table.for_year(schedule_wd, year)
+        # table = annual_distribution_table(schedule_wd, year)
 
 def present_dispatcher(
     command: str,
